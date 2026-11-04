@@ -13,13 +13,18 @@ let globalX = X_MIN, fMin = Infinity, fMax = -Infinity;
 const localMaxima = [];
 for (let x = X_MIN; x <= X_MAX; x++) {
     const f = fitness(x);
-    if (f > fMax) { fMax = f; globalX = x; }
-    if (f < fMin) fMin = f;
+    if (f > fMax) { 
+        fMax = f;
+        globalX = x; 
+    }
+    if (f < fMin) 
+        fMin = f;
     const isLocal = NEIGHBOR_OFFSETS.every(d => {
         const nx = x + d;
         return nx < X_MIN || nx > X_MAX || fitness(nx) <= f;
     });
-    if (isLocal) localMaxima.push(x);
+    if (isLocal) 
+        localMaxima.push(x);
 }
 
 //Hill Climbing Code
@@ -31,7 +36,8 @@ function runHillClimbing(numRestarts) {
     for (let r = 0; r < numRestarts; r++) {
         //Random Restart Part
         let x = X_MIN + Math.floor(Math.random() * (X_MAX - X_MIN + 1));
-        let f = fitness(x); evalTotal++;
+        let f = fitness(x); 
+        evalTotal++;
         const startX = x, path = [{ x, f }];
         let expanded = 0;
 
@@ -39,7 +45,8 @@ function runHillClimbing(numRestarts) {
             const neighbors = [];
             for (const d of NEIGHBOR_OFFSETS) {
                 const nx = x + d;
-                if (nx < X_MIN || nx > X_MAX) continue;
+                if (nx < X_MIN || nx > X_MAX) 
+                    continue;
                 neighbors.push({ x: nx, f: fitness(nx) });
                 evalTotal++;
             }
@@ -47,7 +54,9 @@ function runHillClimbing(numRestarts) {
             expandedTotal++;
 
             let best = neighbors[0];
-            for (const n of neighbors) if (n.f > best.f) best = n;
+            for (const n of neighbors) 
+                if (n.f > best.f) 
+                    best = n;
             const improves = best.f > f;
 
             steps.push({
@@ -55,8 +64,11 @@ function runHillClimbing(numRestarts) {
                 stuck: !improves, path: path.slice(), expandedTotal, evalTotal
             });
 
-            if (!improves) break;
-            x = best.x; f = best.f; path.push({ x, f });
+            if (!improves) 
+                break;
+            x = best.x; 
+            f = best.f; 
+            path.push({ x, f });
         }
 
         summaries.push({
@@ -66,7 +78,9 @@ function runHillClimbing(numRestarts) {
             lastStepIndex: steps.length - 1
         });
     }
-    return { steps, summaries, time: performance.now() - startTime };
+    return { 
+        steps, summaries, time: performance.now() - startTime 
+    };
 }
 
 let sim = null, idx = 0, playing = false, timer = null;
@@ -80,14 +94,27 @@ const sy = f => H - PAD_B - (f - fMin) / (fMax - fMin) * (H - PAD_T - PAD_B - 15
 
 function drawLandscape() {
     ctx.clearRect(0, 0, W, H);
-    ctx.strokeStyle = "#94a3b8"; ctx.fillStyle = "#475569"; ctx.font = "12px Arial"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(PAD_L, PAD_T); ctx.lineTo(PAD_L, H - PAD_B); ctx.lineTo(W - PAD_R, H - PAD_B); ctx.stroke();
-    for (let x = 0; x <= 100; x += 10) ctx.fillText(x, sx(x) - 8, H - PAD_B + 16);
+    ctx.strokeStyle = "#94a3b8"; 
+    ctx.fillStyle = "#475569"; 
+    ctx.font = "12px Arial"; 
+    ctx.lineWidth = 1;
+    ctx.beginPath(); 
+    ctx.moveTo(PAD_L, PAD_T); 
+    ctx.lineTo(PAD_L, H - PAD_B); 
+    ctx.lineTo(W - PAD_R, H - PAD_B); 
+    ctx.stroke();
+    for (let x = 0; x <= 100; x += 10) 
+        ctx.fillText(x, sx(x) - 8, H - PAD_B + 16);
     ctx.fillText("Search position (x)", W / 2 - 50, H - 6);
-    ctx.save(); ctx.translate(14, H / 2 + 40); ctx.rotate(-Math.PI / 2);
-    ctx.fillText("Fitness f(x)", 0, 0); ctx.restore();
+    ctx.save(); 
+    ctx.translate(14, H / 2 + 40); 
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText("Fitness f(x)", 0, 0); 
+    ctx.restore();
 
-    ctx.strokeStyle = "#64748b"; ctx.lineWidth = 2; ctx.beginPath();
+    ctx.strokeStyle = "#64748b"; 
+    ctx.lineWidth = 2; 
+    ctx.beginPath();
     for (let x = X_MIN; x <= X_MAX; x += 0.5) {
         const px = sx(x), py = sy(fitness(x));
         x === X_MIN ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
@@ -97,38 +124,70 @@ function drawLandscape() {
     ctx.fillStyle = "#94a3b8";
     for (const x of localMaxima) {
         const px = sx(x), py = sy(fitness(x)) - 6;
-        ctx.beginPath(); ctx.moveTo(px, py - 7); ctx.lineTo(px - 5, py); ctx.lineTo(px + 5, py); ctx.fill();
+        ctx.beginPath(); 
+        ctx.moveTo(px, py - 7); 
+        ctx.lineTo(px - 5, py); 
+        ctx.lineTo(px + 5, py); 
+        ctx.fill();
     }
-    ctx.fillStyle = "#eab308"; ctx.font = "22px Arial";
+    ctx.fillStyle = "#eab308"; 
+    ctx.font = "22px Arial";
     ctx.fillText("★", sx(globalX) - 9, sy(fMax) - 10);
 }
 
 function drawPath(step, lift, color, thick) {
     const pts = step.path.map(p => [sx(p.x), sy(p.f) - lift]);
-    ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
-    if (thick) { ctx.strokeStyle = "#facc15"; ctx.lineWidth = 9; ctx.globalAlpha = 0.6; ctx.stroke(); ctx.globalAlpha = 1; }
-    ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.stroke();
+    ctx.beginPath(); 
+    pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    if (thick) { 
+        ctx.strokeStyle = "#facc15";
+         ctx.lineWidth = 9; 
+         ctx.globalAlpha = 0.6; 
+         ctx.stroke(); ctx.globalAlpha = 1; 
+    }
+    ctx.strokeStyle = color; 
+    ctx.lineWidth = 3; 
+    ctx.stroke();
     const [x0, y0] = pts[0];
-    ctx.fillStyle = "white"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x0, y0, 5, 0, 7); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "white"; 
+    ctx.lineWidth = 2; 
+    ctx.beginPath(); 
+    ctx.arc(x0, y0, 5, 0, 7); 
+    ctx.fill(); 
+    ctx.stroke();
     const [x1, y1] = pts[pts.length - 1];
-    if (step.stuck) { ctx.fillStyle = color; ctx.fillRect(x1 - 5, y1 - 5, 10, 10); }
+    if (step.stuck) { 
+        ctx.fillStyle = color; 
+        ctx.fillRect(x1 - 5, y1 - 5, 10, 10); 
+    }
 }
 
 function draw() {
     drawLandscape();
     const latest = {};
-    for (let i = 0; i <= idx; i++) latest[sim.steps[i].restart] = sim.steps[i];
+    for (let i = 0; i <= idx; i++) 
+        latest[sim.steps[i].restart] = sim.steps[i];
     const best = bestFinished();
-    for (const r in latest) drawPath(latest[r], 4 + r * 2, COLORS[r], best && best.restart == r);
+    for (const r in latest) 
+        drawPath(latest[r], 4 + r * 2, COLORS[r], best && best.restart == r);
     const cur = sim.steps[idx];
-    ctx.fillStyle = COLORS[cur.restart]; ctx.strokeStyle = "black"; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(sx(cur.x), sy(cur.f) - 4 - cur.restart * 2, 8, 0, 7); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = COLORS[cur.restart]; 
+    ctx.strokeStyle = "black"; 
+    ctx.lineWidth = 2;
+    ctx.beginPath(); 
+    ctx.arc(sx(cur.x), sy(cur.f) - 4 - cur.restart * 2, 8, 0, 7); 
+    ctx.fill(); 
+    ctx.stroke();
 }
 
-function finishedSummaries() { return sim.summaries.filter(s => s.lastStepIndex <= idx); }
+function finishedSummaries() { 
+    return sim.summaries.filter(s => s.lastStepIndex <= idx); 
+}
 function bestFinished() {
     let best = null;
-    for (const s of finishedSummaries()) if (!best || s.fitness > best.fitness) best = s;
+    for (const s of finishedSummaries()) 
+        if (!best || s.fitness > best.fitness) 
+            best = s;
     return best;
 }
 
